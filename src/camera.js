@@ -1,9 +1,19 @@
 import * as THREE from "three";
 
 export function createCamera(gameWindow) {
+  const DEG2RAD = Math.PI / 180;
   const LEFT_MOUSE_BUTTON = 0;
   const MIDDLE_MOUSE_BUTTON = 1;
   const RIGHT_MOUSE_BUTTON = 2;
+
+  const ROTATION_SENSITIVITY = 0.5;
+  const ZOOM_SENSITIVITY = 0.02;
+  const PAN_SENSITIVITY = -0.01;
+  const MIN_CAMERA_RADIUS = 10;
+  const MAX_CAMERA_RADIUS = 20;
+  const MIN_CAMERA_ELEVATION = 30;
+  const MAX_CAMERA_ELEVATION = 100;
+  const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
   const camera = new THREE.PerspectiveCamera(
     75,
@@ -11,11 +21,10 @@ export function createCamera(gameWindow) {
     0.1,
     1000
   );
-  const MIN_CAMERA_RADIUS = 2;
-  const MAX_CAMERA_RADIUS = 10;
-  let cameraRadius = 5;
-  let cameraAzimuth = 0;
-  let cameraElevation = 0;
+  let cameraOrigin = new THREE.Vector3();
+  let cameraRadius = (MIN_CAMERA_RADIUS + MAX_CAMERA_RADIUS) / 2;
+  let cameraAzimuth = 135;
+  let cameraElevation = 45;
   let isLeftMouseDown = false;
   let isRightMouseDown = false;
   let isMiddleMouseDown = false;
@@ -51,17 +60,31 @@ export function createCamera(gameWindow) {
     const deltaX = event.clientX - prevMouseX;
     const deltaY = event.clientY - prevMouseY;
     if (isLeftMouseDown) {
-      cameraAzimuth += -(deltaX * 0.5);
-      cameraElevation += deltaY * 0.5;
-      cameraElevation = Math.min(180, Math.max(0, cameraElevation));
+      cameraAzimuth += -(deltaX * ROTATION_SENSITIVITY);
+      cameraElevation += deltaY * ROTATION_SENSITIVITY;
+      cameraElevation = Math.min(
+        MAX_CAMERA_ELEVATION,
+        Math.max(MIN_CAMERA_ELEVATION, cameraElevation)
+      );
       updateCameraPosition();
     }
 
     if (isMiddleMouseDown) {
+      const forward = new THREE.Vector3(0, 0, 1).applyAxisAngle(
+        Y_AXIS,
+        cameraAzimuth * DEG2RAD
+      );
+      const left = new THREE.Vector3(1, 0, 0).applyAxisAngle(
+        Y_AXIS,
+        cameraAzimuth * DEG2RAD
+      );
+      cameraOrigin.add(forward.multiplyScalar(PAN_SENSITIVITY * deltaY));
+      cameraOrigin.add(left.multiplyScalar(PAN_SENSITIVITY * deltaX));
+      updateCameraPosition();
     }
 
     if (isRightMouseDown) {
-      cameraRadius += deltaY * 0.02;
+      cameraRadius += deltaY * ZOOM_SENSITIVITY;
       cameraRadius = Math.min(
         MAX_CAMERA_RADIUS,
         Math.max(MIN_CAMERA_RADIUS, cameraRadius)
@@ -76,15 +99,15 @@ export function createCamera(gameWindow) {
   function updateCameraPosition() {
     camera.position.x =
       cameraRadius *
-      Math.sin((cameraAzimuth * Math.PI) / 180) *
-      Math.cos((cameraElevation * Math.PI) / 180);
-    camera.position.y =
-      cameraRadius * Math.sin((cameraElevation * Math.PI) / 180);
+      Math.sin(cameraAzimuth * DEG2RAD) *
+      Math.cos(cameraElevation * DEG2RAD);
+    camera.position.y = cameraRadius * Math.sin(cameraElevation * DEG2RAD);
     camera.position.z =
       cameraRadius *
-      Math.cos((cameraAzimuth * Math.PI) / 180) *
-      Math.cos((cameraElevation * Math.PI) / 180);
-    camera.lookAt(0, 0, 0);
+      Math.cos(cameraAzimuth * DEG2RAD) *
+      Math.cos(cameraElevation * DEG2RAD);
+    camera.position.add(cameraOrigin);
+    camera.lookAt(cameraOrigin);
     camera.updateMatrix();
   }
 
