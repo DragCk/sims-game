@@ -6,13 +6,20 @@ export function createGame() {
   const city = createCity(16);
 
   scene.initialize(city);
+  scene.onObjectSelected = (selectedObject) => {
+    console.log(selectedObject);
+
+    let { x, y } = selectedObject.userData;
+    const tile = city.data[x][y];
+    console.log(tile);
+  };
 
   document.oncontextmenu = (e) => {
     e.preventDefault();
   };
-  document.addEventListener("mousedown", scene.onMouseDown, false);
-  document.addEventListener("mouseup", scene.onMouseUp, false);
-  document.addEventListener("mousemove", scene.onMouseMove, false);
+  document.addEventListener("mousedown", scene.onMouseDown.bind(scene), false);
+  document.addEventListener("mouseup", scene.onMouseUp.bind(scene), false);
+  document.addEventListener("mousemove", scene.onMouseMove.bind(scene), false);
 
   const game = {
     update() {
