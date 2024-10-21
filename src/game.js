@@ -2,16 +2,24 @@ import { createScene } from "./scene.js";
 import { createCity } from "./city.js";
 
 export function createGame() {
+  let activeTollId = "";
   const scene = createScene();
   const city = createCity(16);
 
   scene.initialize(city);
   scene.onObjectSelected = (selectedObject) => {
-    console.log(selectedObject);
-
     let { x, y } = selectedObject.userData;
     const tile = city.data[x][y];
-    console.log(tile);
+
+    if (activeTollId === "bulldoze") {
+      //remove existing building
+      tile.buildingId = undefined;
+      scene.update(city);
+    } else if (!tile.buildingId) {
+      //place building at that location
+      tile.buildingId = activeTollId;
+      scene.update(city);
+    }
   };
 
   document.oncontextmenu = (e) => {
@@ -25,6 +33,10 @@ export function createGame() {
     update() {
       city.update();
       scene.update(city);
+    },
+    setActiveTollId(toolId) {
+      activeTollId = toolId;
+      console.log(activeTollId);
     },
   };
 

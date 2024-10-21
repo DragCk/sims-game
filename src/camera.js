@@ -1,20 +1,26 @@
 import * as THREE from "three";
 
 export function createCamera(gameWindow) {
+  //----Constants----//
   const DEG2RAD = Math.PI / 180;
   const LEFT_MOUSE_BUTTON = 0;
   const MIDDLE_MOUSE_BUTTON = 1;
   const RIGHT_MOUSE_BUTTON = 2;
 
+  //---Camera sensitivity---//
   const ROTATION_SENSITIVITY = 0.5;
   const ZOOM_SENSITIVITY = 0.02;
   const PAN_SENSITIVITY = -0.01;
+
+  const Y_AXIS = new THREE.Vector3(0, 1, 0);
+
+  //---Camera  constrains
   const MIN_CAMERA_RADIUS = 10;
   const MAX_CAMERA_RADIUS = 20;
   const MIN_CAMERA_ELEVATION = 30;
   const MAX_CAMERA_ELEVATION = 100;
-  const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
+  //---Variables---//
   const camera = new THREE.PerspectiveCamera(
     75,
     gameWindow.offsetWidth / gameWindow.offsetHeight,
