@@ -1,5 +1,6 @@
 import { createScene } from "./scene.js";
 import { createCity } from "./city.js";
+import buildingFactory from "./building.js";
 
 export function createGame() {
   let activeTollId = "";
@@ -13,11 +14,11 @@ export function createGame() {
 
     if (activeTollId === "bulldoze") {
       //remove existing building
-      tile.buildingId = undefined;
+      tile.building = undefined;
       scene.update(city);
-    } else if (!tile.buildingId) {
+    } else if (!tile.building) {
       //place building at that location
-      tile.buildingId = activeTollId;
+      tile.building = buildingFactory[activeTollId]();
       scene.update(city);
     }
   };

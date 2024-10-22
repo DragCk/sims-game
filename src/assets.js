@@ -11,34 +11,37 @@ const assets = {
     mesh.position.set(x, -0.5, y);
     return mesh;
   },
-  "residential": (x, y) => {
+  "residential": (x, y, data) => {
     const material = new THREE.MeshLambertMaterial({
       color: 0x00fffff,
     });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.userData = { id: "residential", x, y };
-    mesh.position.set(x, 0.5, y);
+    mesh.scale.set(1, data.height, 1);
+    mesh.position.set(x, data.height / 2, y);
     return mesh;
   },
-  "commercial": (x, y) => {
+  "commercial": (x, y, data) => {
     const material = new THREE.MeshLambertMaterial({
       color: 0x0000ff,
     });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.userData = { id: "commercial", x, y };
-    mesh.position.set(x, 0.5, y);
+    mesh.scale.set(1, data.height, 1);
+    mesh.position.set(x, data.height / 2, y);
     return mesh;
   },
-  "industrial": (x, y) => {
+  "industrial": (x, y, data) => {
     const material = new THREE.MeshLambertMaterial({
       color: 0xffff00,
     });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.userData = { id: "industrial", x, y };
-    mesh.position.set(x, 0.5, y);
+    mesh.scale.set(1, data.height, 1);
+    mesh.position.set(x, data.height / 2, y);
     return mesh;
   },
-  "road": (x, y) => {
+  "road": (x, y, data) => {
     const material = new THREE.MeshLambertMaterial({
       color: 0x4444440,
     });
@@ -50,9 +53,17 @@ const assets = {
   },
 };
 
-export function createAssetInstance(assetId, x, y) {
+/**
+ * Creates a new 3D asset
+ * @param {string} assetId The ID of the asset to create
+ * @param {number} x The x-coordinate of the asset
+ * @param {number} y The y-coordinate of the asset
+ * @param {object} data Additional metadata need for creating asset
+ * @returns
+ */
+export function createAssetInstance(assetId, x, y, data) {
   if (assetId in assets) {
-    return assets[assetId](x, y);
+    return assets[assetId](x, y, data);
   } else {
     console.warn(`Asset Id ${assetId} not exist.`);
     return undefined;
